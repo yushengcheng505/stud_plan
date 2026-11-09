@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>СтудПлан — презентация учебного проекта</title>
+  <style>
+    :root {
+      --ink: #17233d;
+      --muted: #667085;
+      --muted-2: #8b96a8;
+      --line: #dce3ec;
+      --line-strong: #c4cfdd;
+      --paper: #f7f9fc;
+      --white: #ffffff;
+      --blue: #3559d6;
+      --blue-dark: #263e9e;
+      --blue-soft: #eaf0ff;
+      --violet: #6e55d9;
+      --violet-soft: #f0edff;
+      --green: #2f8b68;
+      --green-soft: #eaf7f1;
+      --orange: #bc6f34;
+      --orange-soft: #fff2e7;
+      --red: #b55261;
+      --red-soft: #fff0f2;
+      --shadow: 0 16px 44px rgba(23, 35, 61, .08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      background: #dfe5ee;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      font-size: 16px;
+      overflow: hidden;
+    }
+    button { font: inherit; }
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      padding: clamp(28px, 4.2vw, 72px) clamp(34px, 5vw, 88px) clamp(28px, 4vw, 62px);
+      display: flex;
+      flex-direction: column;
+      background: var(--paper);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(18px);
+      transition: opacity .34s ease, transform .34s ease, visibility .34s ease;
+      overflow: hidden;
+    }
+    .slide.active { opacity: 1; visibility: visible; transform: translateX(0); }
+    .slide::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: var(--blue);
+    }
+    .slide::after {
+      content: "";
+      position: absolute;
+      right: -120px;
+      bottom: -180px;
+      width: 430px;
+      height: 430px;
+      border: 1px solid rgba(53,89,214,.08);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .slide-head {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: clamp(16px, 2vh, 28px);
+    }
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .kicker::before {
+      content: "";
+      display: block;
+      width: 18px;
+      height: 2px;
+      background: var(--blue);
+      border-radius: 10px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h2 {
+      margin-top: 8px;
+      font-size: clamp(28px, 3.2vw, 52px);
+      line-height: 1.06;
+      letter-spacing: -.045em;
+      font-weight: 760;
+    }
+    .slide-no {
+      color: var(--muted-2);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      white-space: nowrap;
+      padding-top: 6px;
+    }
+    .subtle { color: var(--muted); }
+    .small { font-size: 12px; line-height: 1.45; }
+    .tiny { font-size: 10px; line-height: 1.35; }
+    .accent { color: var(--blue); }
+    .strong { font-weight: 750; }
+    .card {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 18px rgba(23,35,61,.035);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: var(--blue-soft);
+      color: var(--blue-dark);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .03em;
+    }
+    .footnote {
+      position: absolute;
+      left: clamp(34px, 5vw, 88px);
+      right: clamp(34px, 5vw, 88px);
+      bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted-2);
+      font-size: 10px;
+      z-index: 2;
+    }
+
+    /* title */
+    .title-slide { justify-content: center; }
+    .title-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(280px, .92fr);
+      align-items: center;
+      gap: clamp(38px, 7vw, 120px);
+      max-width: 1180px;
+      width: 100%;
+      margin: 0 auto;
+      z-index: 1;
+    }
+    .title-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .title-mark span { width: 28px; height: 3px; background: var(--blue); border-radius: 4px; }
+    .title-slide h1 {
+      font-size: clamp(68px, 10vw, 148px);
+      letter-spacing: -.09em;
+      line-height: .86;
+      font-weight: 820;
+      color: var(--ink);
+    }
+    .title-slide h1 em { font-style: normal; color: var(--blue); }
+    .title-subtitle {
+      margin-top: 25px;
+      font-size: clamp(20px, 2.5vw, 36px);
+      letter-spacing: -.04em;
+      color: var(--muted);
+    }
+    .title-meta {
+      margin-top: 45px;
+      display: grid;
+      gap: 11px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .title-meta strong { color: var(--ink); font-weight: 700; }
+    .title-illustration {
+      position: relative;
+      min-height: 360px;
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      background: linear-gradient(145deg, #fff, #f0f4fb);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .title-illustration::before {
+      content: "";
+      position: absolute;
+      width: 300px; height: 300px;
+      border: 1px solid rgba(53,89,214,.17);
+      border-radius: 50%;
+      top: 34px; right: -70px;
+    }
+    .title-illustration::after {
+      content: "";
+      position: absolute;
+      width: 230px; height: 230px;
+      border: 1px solid rgba(110,85,217,.16);
+      border-radius: 50%;
+      bottom: -80px; left: -70px;
+    }
+    .planner-window {
+      position: absolute;
+      top: 54px; left: 52px; right: 52px;
+      padding: 20px;
+      border-radius: 17px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 38px rgba(23,35,61,.12);
+      z-index: 1;
+    }
+    .window-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 17px; }
+    .window-logo { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; }
+    .window-logo i { width: 22px; height: 22px; border-radius: 7px; background: var(--blue); display: block; }
+    .window-dots { display: flex; gap: 4px; }
+    .window-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--line-strong); }
+    .window-task { display: grid; grid-template-columns: 18px 1fr auto; gap: 9px; align-items: center; padding: 12px 0; border-top: 1px solid #edf0f5; font-size: 11px; }
+    .window-task b { width: 14px; height: 14px; border: 1.5px solid var(--blue); border-radius: 4px; }
+    .window-task.done b { background: var(--blue); position: relative; }
+    .window-task.done b::after { content: "✓"; color: #fff; font-size: 10px; position: absolute; left: 2px; top: -2px; }
+    .window-task.done span { color: var(--muted); text-decoration: line-through; }
+    .window-task small { font-size: 9px; color: var(--muted); }
+    .title-label { position: absolute; right: 22px; bottom: 22px; color: var(--blue); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+
+    /* team */
+    .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; flex: 1; align-items: stretch; }
+    .team-card { padding: 22px; display: flex; flex-direction: column; min-width: 0; }
+    .role-icon { width: 48px; height: 48px; border-radius: 15px; display: grid; place-items: center; color: var(--blue); background: var(--blue-soft); font-size: 22px; font-weight: 800; margin-bottom: 20px; }
+    .team-card:nth-child(2) .role-icon { color: var(--violet); background: var(--violet-soft); }
+    .team-card:nth-child(3) .role-icon { color: var(--green); background: var(--green-soft); }
+    .team-card:nth-child(4) .role-icon { color: var(--orange); background: var(--orange-soft); }
+    .team-card h3 { font-size: 15px; letter-spacing: .01em; margin-bottom: 8px; }
+    .person { color: var(--blue); font-size: 12px; font-weight: 750; margin-bottom: 18px; }
+    .team-card ul { margin: 0; padding-left: 16px; color: var(--muted); font-size: 11px; line-height: 1.7; }
+    .team-card li::marker { color: var(--line-strong); }
+
+    /* idea */
+    .idea-flow { display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr; gap: 12px; align-items: stretch; margin-bottom: 22px; }
+    .flow-card { padding: 20px; min-height: 175px; border-radius: 18px; border: 1px solid var(--line); background: #fff; }
+    .flow-card.problem { border-top: 4px solid var(--red); }
+    .flow-card.solution { border-top: 4px solid var(--blue); }
+    .flow-card.result { border-top: 4px solid var(--green); background: var(--green-soft); }
+    .flow-label { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; font-weight: 800; color: var(--muted-2); }
+    .flow-card h3 { font-size: 18px; margin: 10px 0 9px; }
+    .flow-card p { color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .flow-arrow { display: grid; place-items: center; color: var(--blue); font-size: 28px; font-weight: 300; }
+    .idea-bottom { display: grid; grid-template-columns: .95fr 1.05fr; gap: 22px; flex: 1; min-height: 0; }
+    .feature-panel, .why-panel { padding: 20px; }
+    .panel-title { font-size: 13px; font-weight: 800; margin-bottom: 14px; }
+    .feature-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px 12px; }
+    .feature { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 12px; }
+    .feature i { width: 20px; height: 20px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 7px; background: var(--blue-soft); color: var(--blue); font-style: normal; font-size: 11px; font-weight: 800; }
+    .why-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .why-item { display: flex; gap: 8px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+    .why-item::before { content: "✓"; color: var(--green); font-weight: 800; }
+    .result-strip { margin-top: 18px; padding: 12px 14px; border-radius: 12px; background: var(--blue-soft); color: var(--blue-dark); font-size: 12px; font-weight: 700; }
+
+    /* stakeholders */
+    .stake-wrap { display: grid; grid-template-columns: minmax(0, 1.62fr) minmax(270px, .8fr); gap: 20px; flex: 1; min-height: 0; }
+    .stake-table { overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); padding: 10px 11px; }
+    th { background: #eef3fb; color: var(--blue-dark); font-size: 10px; line-height: 1.25; text-transform: uppercase; letter-spacing: .08em; }
+    td { color: var(--muted); font-size: 10px; line-height: 1.35; }
+    td:first-child { color: var(--ink); font-size: 11px; font-weight: 750; }
+    tr:last-child td { border-bottom: 0; }
+    .priority-high { color: var(--blue); font-weight: 800; }
+    .priority-medium { color: var(--orange); font-weight: 800; }
+    .stake-side { display: grid; gap: 12px; align-content: start; }
+    .stake-side .card { padding: 15px; }
+    .side-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; }
+    .key-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .key-list span { border-radius: 999px; background: var(--blue-soft); color: var(--blue-dark); font-size: 10px; font-weight: 750; padding: 6px 8px; }
+    .conflict { padding: 9px 0; border-top: 1px solid var(--line); }
+    .conflict:first-of-type { border-top: 0; padding-top: 0; }
+    .conflict b { display: block; font-size: 10px; line-height: 1.35; margin-bottom: 3px; }
+    .conflict p { color: var(--muted); font-size: 10px; line-height: 1.35; }
+    .conflict p strong { color: var(--green); }
+
+    /* smart */
+    .smart-grid { display: grid; gap: 8px; flex: 1; min-height: 0; }
+    .smart-card { display: grid; grid-template-columns: 160px minmax(0, 1fr) 270px; gap: 16px; align-items: center; padding: 12px 16px; border-radius: 15px; background: #fff; border: 1px solid var(--line); }
+    .smart-label { display: flex; align-items: center; gap: 9px; }
+    .smart-number { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; color: #fff; background: var(--blue); font-weight: 800; font-size: 13px; }
+    .smart-card:nth-child(2) .smart-number { background: var(--violet); }
+    .smart-card:nth-child(3) .smart-number { background: var(--green); }
+    .smart-card:nth-child(4) .smart-number { background: var(--orange); }
+    .smart-card:nth-child(5) .smart-number { background: var(--red); }
+    .smart-label h3 { font-size: 12px; line-height: 1.2; }
+    .smart-label small { color: var(--muted); font-size: 10px; display: block; margin-top: 3px; }
+    .goal-text { color: var(--muted); font-size: 10px; line-height: 1.42; }
+    .smart-tags { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+    .smart-tag { padding: 4px 4px 5px; border-radius: 7px; background: #f4f6fa; text-align: center; color: var(--muted); font-size: 8px; line-height: 1.18; }
+    .smart-tag b { display: block; color: var(--blue); font-size: 10px; margin-bottom: 2px; }
+
+    /* WBS */
+    .wbs-root { align-self: center; position: relative; padding: 12px 26px; border-radius: 13px; background: var(--blue); color: white; font-size: 16px; font-weight: 800; letter-spacing: .08em; box-shadow: 0 8px 20px rgba(53,89,214,.22); margin-bottom: 24px; }
+    .wbs-root::after { content: ""; position: absolute; bottom: -24px; left: 50%; width: 1px; height: 24px; background: var(--line-strong); }
+    .wbs-branches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; position: relative; flex: 1; min-height: 0; }
+    .wbs-branches::before { content: ""; position: absolute; top: -14px; left: 10%; right: 10%; height: 1px; background: var(--line-strong); }
+    .wbs-branch { position: relative; min-width: 0; }
+    .wbs-branch::before { content: ""; position: absolute; top: -14px; left: 50%; width: 1px; height: 14px; background: var(--line-strong); }
+    .wbs-heading { padding: 9px 8px; text-align: center; border-radius: 10px; color: var(--blue-dark); background: var(--blue-soft); font-size: 11px; font-weight: 800; letter-spacing: .05em; margin-bottom: 8px; }
+    .wbs-branch:nth-child(2) .wbs-heading { color: #5840a6; background: var(--violet-soft); }
+    .wbs-branch:nth-child(3) .wbs-heading { color: #1d7654; background: var(--green-soft); }
+    .wbs-branch:nth-child(4) .wbs-heading { color: #995723; background: var(--orange-soft); }
+    .wbs-branch:nth-child(5) .wbs-heading { color: #98414f; background: var(--red-soft); }
+    .wbs-items { display: grid; gap: 5px; }
+    .wbs-item { padding: 6px 7px; min-height: 27px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); background: #fff; font-size: 9px; line-height: 1.25; }
+    .wbs-item b { color: var(--ink); margin-right: 3px; font-size: 9px; }
+
+    /* gantt */
+    .gantt-wrap { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .gantt-legend { display: flex; gap: 15px; align-items: center; justify-content: flex-end; margin-bottom: 10px; color: var(--muted); font-size: 10px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-item i { display: block; width: 22px; height: 7px; border-radius: 4px; background: var(--blue); }
+    .legend-item i.milestone { width: 8px; height: 8px; transform: rotate(45deg); border-radius: 1px; background: var(--orange); }
+    .gantt { display: grid; grid-template-columns: 210px repeat(5, 1fr); grid-template-rows: 42px repeat(7, 1fr); flex: 1; border: 1px solid var(--line); border-radius: 15px; overflow: hidden; background: #fff; }
+    .gantt > div { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .gantt > div:nth-child(7n) { border-right: 0; }
+    .gantt > div:nth-last-child(-n+7) { border-bottom: 0; }
+    .gantt-head { padding: 8px 9px; background: #eef3fb; color: var(--blue-dark); font-size: 9px; font-weight: 800; line-height: 1.2; }
+    .gantt-head:first-child { background: #e6ecf6; }
+    .gantt-label { display: flex; align-items: center; padding: 0 12px; color: var(--ink); font-size: 10px; font-weight: 700; background: #fbfcfe; }
+    .gantt-cell { position: relative; background-image: linear-gradient(to right, transparent calc(100% - 1px), rgba(220,227,236,.46) calc(100% - 1px)); }
+    .bar { position: absolute; top: 50%; height: 18px; transform: translateY(-50%); border-radius: 6px; background: var(--blue); box-shadow: 0 3px 7px rgba(53,89,214,.16); }
+    .bar.violet { background: var(--violet); }
+    .bar.green { background: var(--green); }
+    .bar.orange { background: var(--orange); }
+    .bar.red { background: var(--red); }
+    .bar.light { background: #8296df; }
+    .milestone { position: absolute; top: 50%; width: 12px; height: 12px; transform: translate(-50%, -50%) rotate(45deg); border-radius: 2px; background: var(--orange); box-shadow: 0 2px 7px rgba(188,111,52,.3); z-index: 1; }
+    .gantt-dates { display: grid; grid-template-columns: 210px repeat(5, 1fr); margin-top: 8px; color: var(--muted-2); font-size: 9px; }
+    .gantt-dates span { text-align: center; }
+    .gantt-note { margin-top: 9px; color: var(--muted); font-size: 10px; }
+
+    /* network */
+    .network-wrap { flex: 1; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 13px; min-height: 0; }
+    .network-board { position: relative; min-height: 0; border: 1px solid var(--line); border-radius: 18px; background: #fff; overflow: hidden; }
+    .network-board svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .network-node { position: absolute; width: 170px; min-height: 70px; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 13px; background: #fff; box-shadow: 0 6px 14px rgba(23,35,61,.06); }
+    .network-node b { display: block; color: var(--blue-dark); font-size: 12px; line-height: 1.2; }
+    .network-node span { display: block; margin-top: 7px; color: var(--muted); font-size: 11px; }
+    .network-node.a { left: 5%; top: 42%; border-left: 4px solid var(--blue); }
+    .network-node.b { left: 30%; top: 16%; border-left: 4px solid var(--violet); }
+    .network-node.c { left: 30%; top: 64%; border-left: 4px solid var(--violet); }
+    .network-node.d { left: 54%; top: 42%; border-left: 4px solid var(--green); }
+    .network-node.e { left: 70%; top: 42%; border-left: 4px solid var(--orange); }
+    .network-node.f { left: 84%; top: 42%; width: 150px; border-left: 4px solid var(--red); }
+    .network-finish { position: absolute; right: 4%; top: 42%; transform: translateY(-50%); width: 10px; height: 84px; border: 2px solid var(--ink); border-radius: 4px; background: var(--blue-soft); }
+    .network-finish::before { content: "Проект готов"; position: absolute; width: 74px; left: -82px; top: 27px; color: var(--ink); font-size: 10px; font-weight: 800; text-align: right; }
+    .critical { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 15px; align-items: center; padding: 14px 17px; border-radius: 14px; background: var(--blue-soft); color: var(--blue-dark); }
+    .critical b { font-size: 12px; }
+    .critical span { font-size: 11px; line-height: 1.4; }
+    .network-hint { position: absolute; top: 13px; right: 16px; color: var(--muted-2); font-size: 9px; letter-spacing: .04em; }
+
+    /* controls */
+    .controls {
+      position: fixed;
+      left: 50%; bottom: 16px; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 9px;
+      z-index: 20;
+      padding: 7px 9px;
+      border: 1px solid rgba(196,207,221,.86);
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 7px 20px rgba(23,35,61,.12);
+      backdrop-filter: blur(12px);
+    }
+    .controls button { border: 0; background: transparent; color: var(--ink); cursor: pointer; }
+    .nav-btn { width: 30px; height: 30px; border-radius: 50%; font-size: 17px; line-height: 1; }
+    .nav-btn:hover { background: var(--blue-soft); color: var(--blue); }
+    .counter { min-width: 46px; color: var(--muted); text-align: center; font-size: 11px; font-weight: 750; }
+    .fullscreen-btn { font-size: 10px; color: var(--muted) !important; padding: 0 8px; }
+    .progress { position: fixed; top: 0; left: 0; z-index: 30; height: 5px; background: var(--blue); transition: width .3s ease; }
+
+    :root {
+      --ink: #1d2940; --muted: #45536b; --muted-2: #65728a;
+      --blue: #3455ce; --blue-dark: #2743a5; --blue-soft: #eaf0ff;
+      --violet: #5268b4; --violet-soft: #edf0fa;
+      --green: #3455ce; --green-soft: #edf2ff;
+      --orange: #5268b4; --orange-soft: #edf0fa;
+      --red: #5268b4; --red-soft: #edf0fa;
+    }
+    body { font-family: Arial, Helvetica, sans-serif; font-size: 26px; }
+    .deck { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform: translate(-50%, -50%) scale(var(--scale, 1)); transform-origin: center; box-shadow: 0 16px 80px #1d29401a; }
+    .slide { width: 1920px; height: 1080px; padding: 64px 80px 82px; transition: none; transform: none; }
+    .slide::after { display: none; }
+    .slide-head { margin-bottom: 32px; gap: 30px; min-height: 96px; }
+    .kicker { font-size: 17px; letter-spacing: .14em; gap: 12px; }
+    .kicker::before { width: 28px; height: 3px; }
+    h2 { font-size: 56px; font-weight: 700; letter-spacing: -.035em; margin-top: 13px; line-height: 1.07; }
+    .slide-no { font-size: 19px; padding-top: 6px; }
+    .card { box-shadow: none; }
+    .footnote { display: none; }
+    .title-layout { grid-template-columns: 1120px 540px; gap: 100px; max-width: none; align-items: center; }
+    .title-mark { font-size: 20px; margin-bottom: 28px; }
+    .title-slide h1 { font-size: 146px; letter-spacing: -.065em; line-height: 1; }
+    .title-subtitle { font-size: 40px; margin-top: 25px; letter-spacing: -.02em; }
+    .title-meta { margin-top: 54px; gap: 16px; font-size: 26px; }
+    .title-illustration { min-height: 360px; height: 360px; border-radius: 24px; box-shadow: none; background: #eef2fc; }
+    .planner-window { top: 24px; left: 30px; right: 30px; padding: 21px; border-radius: 16px; box-shadow: 0 14px 28px #1d29400d; }
+    .window-top { margin-bottom: 10px; }
+    .window-logo { font-size: 18px; gap: 10px; }
+    .window-logo i { width: 22px; height: 22px; }
+    .window-task { font-size: 16px; grid-template-columns: 18px 1fr 55px; gap: 10px; padding: 10px 0; }
+    .window-task small { font-size: 14px; }
+    .window-task b { width: 17px; height: 17px; }
+    .window-task.done b::after { font-size: 13px; left: 2px; }
+    .title-label { font-size: 15px; right: 30px; bottom: 16px; letter-spacing: .03em; }
+    .team-grid { gap: 24px; flex: 0; margin-top: 34px; align-items: stretch; }
+    .team-card { padding: 34px 28px; min-height: 610px; }
+    .role-icon { width: 66px; height: 66px; font-size: 31px; margin-bottom: 34px; background: var(--blue-soft) !important; color: var(--blue) !important; }
+    .team-card h3 { font-size: 25px; min-height: 61px; line-height: 1.2; margin-bottom: 18px; }
+    .person { font-size: 22px; margin-bottom: 28px; }
+    .team-card ul { font-size: 25px; line-height: 1.42; padding-left: 23px; }
+    .team-card li { margin-bottom: 16px; }
+    .team-card li::marker { color: var(--blue); }
+    .idea-flow { grid-template-columns: 1fr 34px 1fr 34px 1fr; gap: 16px; margin-bottom: 26px; }
+    .flow-card { min-height: 294px; padding: 26px; border-top: 4px solid var(--blue) !important; }
+    .flow-label { font-size: 18px; color: var(--blue-dark); }
+    .flow-card h3 { font-size: 32px; margin: 17px 0; line-height: 1.1; }
+    .flow-card p { font-size: 25px; line-height: 1.35; }
+    .flow-arrow { font-size: 42px; }
+    .idea-bottom { gap: 26px; grid-template-columns: 1fr 1fr; }
+    .feature-panel, .why-panel { padding: 26px; }
+    .panel-title { font-size: 27px; margin-bottom: 25px; }
+    .feature-list { gap: 23px 18px; }
+    .feature { font-size: 24px; gap: 12px; line-height: 1.3; }
+    .feature i { width: 31px; height: 31px; font-size: 21px; border-radius: 7px; }
+    .result-strip { margin-top: 28px; padding: 17px; font-size: 22px; line-height: 1.3; }
+    .why-list { gap: 16px 20px; grid-template-columns: 1fr 1fr; }
+    .why-item { font-size: 23px; line-height: 1.35; gap: 12px; }
+    .stake-wrap { display: flex; flex-direction: column; gap: 16px; }
+    .stake-table { flex: none; }
+    th { font-size: 19px; letter-spacing: .01em; padding: 15px 20px; text-transform: none; }
+    td, td:first-child { font-size: 22px; line-height: 1.25; padding: 13px 20px; }
+    .priority-medium { color: var(--muted); }
+    .stake-side { display: grid; gap: 12px; }
+    .stake-side .card { padding: 14px 22px; }
+    .stake-side > .card:first-child { display: flex; align-items: center; gap: 22px; }
+    .side-title { font-size: 20px; letter-spacing: 0; text-transform: none; margin-bottom: 0; }
+    .key-list { gap: 14px; }
+    .key-list span { font-size: 20px; padding: 6px 14px; }
+    .stake-side > .card:last-child { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px 26px; }
+    .stake-side > .card:last-child .side-title { grid-column: 1 / -1; }
+    .conflict, .conflict:first-of-type { border-top: 0; padding: 4px 0 0; }
+    .conflict b { font-size: 21px; line-height: 1.25; margin-bottom: 5px; }
+    .conflict p { font-size: 21px; line-height: 1.25; }
+    .smart-grid { gap: 10px; grid-template-rows: repeat(5, minmax(0, 1fr)); }
+    .smart-card { grid-template-columns: 250px 740px 1fr; gap: 22px; padding: 12px 20px; border-radius: 14px; min-height: 0; }
+    .smart-label { align-items: flex-start; gap: 12px; }
+    .smart-number { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 10px; font-size: 23px; background: var(--blue) !important; }
+    .smart-label h3 { font-size: 24px; line-height: 1.13; }
+    .smart-label small { font-size: 21px; line-height: 1.16; margin-top: 8px; color: var(--blue-dark); font-weight: 700; }
+    .goal-text { font-size: 23px; line-height: 1.22; }
+    .smart-tags { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 16px; align-content: center; }
+    .smart-tag { text-align: left; background: none; border-radius: 0; padding: 0; font-size: 20px; line-height: 1.15; color: var(--muted); }
+    .smart-tag b { display: inline; font-size: 20px; margin: 0 6px 0 0; color: var(--blue); }
+    .smart-tag:last-child { grid-column: 1 / -1; }
+    .wbs-root { font-size: 30px; padding: 16px 46px; margin-top: 6px; margin-bottom: 56px; border-radius: 13px; box-shadow: none; }
+    .wbs-root::after { height: 35px; bottom: -35px; width: 2px; }
+    .wbs-branches { gap: 22px; }
+    .wbs-branches::before { top: -22px; height: 2px; left: calc((100% - 88px) / 10); right: calc((100% - 88px) / 10); }
+    .wbs-branch::before { top: -22px; height: 22px; width: 2px; }
+    .wbs-heading { font-size: 23px; letter-spacing: 0; height: 68px; padding: 12px 8px; display: flex; align-items: center; justify-content: center; background: var(--blue-soft) !important; color: var(--blue-dark) !important; margin-bottom: 20px; }
+    .wbs-items { gap: 12px; border-left: 2px solid var(--line-strong); margin-left: 12px; padding-left: 14px; }
+    .wbs-item { font-size: 23px; line-height: 1.2; padding: 12px; min-height: 62px; position: relative; border-radius: 8px; }
+    .wbs-item::before { content: ''; position: absolute; left: -16px; width: 14px; height: 2px; top: 28px; background: var(--line-strong); }
+    .wbs-item b { font-size: 21px; color: var(--blue-dark); }
+    .gantt-wrap { gap: 0; }
+    .gantt-legend { font-size: 19px; gap: 28px; margin-bottom: 17px; }
+    .legend-item { gap: 12px; }
+    .legend-item i { width: 34px; height: 12px; }
+    .legend-item i.milestone { position: static; transform: rotate(45deg); width: 13px; height: 13px; box-shadow: none; }
+    .gantt { grid-template-columns: 415px repeat(5, 1fr) 150px; grid-template-rows: 69px repeat(7, 1fr); flex: 1; }
+    .gantt-head { font-size: 23px; padding: 14px 16px; line-height: 1.15; }
+    .gantt-head:last-of-type { font-size: 21px; }
+    .gantt-label { flex-direction: column; justify-content: center; align-items: flex-start; padding: 9px 18px; font-size: 24px; line-height: 1.15; gap: 7px; }
+    .gantt-label small { font-size: 20px; font-weight: 400; color: var(--muted); }
+    .bar { height: 31px; border-radius: 4px; background: var(--blue) !important; box-shadow: none; }
+    .milestone { width: 15px; height: 15px; background: var(--ink); box-shadow: 0 0 0 3px white; }
+    .gantt-dates { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-top: 20px; font-size: 20px; color: var(--ink); }
+    .gantt-dates span { text-align: left; padding-left: 13px; border-left: 3px solid var(--blue); line-height: 1.3; }
+    .gantt-dates span:first-child { display: none; }
+    .gantt-dates strong { display: block; font-size: 24px; color: var(--blue); margin-bottom: 3px; }
+    .gantt-note { font-size: 21px; line-height: 1.3; margin-top: 18px; }
+    .network-wrap { gap: 22px; }
+    .network-board { overflow: visible; }
+    .network-hint { top: 25px; right: 28px; font-size: 20px; letter-spacing: 0; }
+    .network-board svg { width: 100%; height: 100%; }
+    .network-node { width: 100%; min-height: 0; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+    .critical { grid-template-columns: 370px 1fr; padding: 22px 26px; gap: 24px; }
+    .critical b { font-size: 26px; line-height: 1.2; }
+    .critical span { font-size: 24px; line-height: 1.3; }
+    .controls { bottom: 12px; padding: 5px 10px; gap: 8px; box-shadow: 0 2px 12px #1d29400e; }
+    .nav-btn { height: 32px; width: 32px; }
+    .controls button:disabled { opacity: .3; cursor: default; }
+    .counter { font-size: 13px; }
+    .fullscreen-btn { font-size: 12px; }
+    .controls button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    .progress { height: 3px; }
+    .problem-layout, .solution-layout { flex: 1; min-height: 0; display: grid; gap: 24px; }
+    .problem-layout { grid-template-columns: 1.08fr .92fr; }
+    .solution-layout { grid-template-rows: minmax(0, 1fr) auto; }
+    .problem-main, .problem-side { min-width: 0; display: grid; gap: 24px; }
+    .problem-main { grid-template-rows: minmax(0, 1fr) auto; }
+    .problem-side { grid-template-rows: 1fr 1fr; }
+    .problem-main .flow-card { min-height: 0; padding: 32px; }
+    .problem-main .flow-card h3 { font-size: 38px; }
+    .problem-main .flow-card p { font-size: 28px; line-height: 1.42; }
+    .source-card, .risk-card, .mvp-strip { padding: 24px 28px; }
+    .source-card h3, .risk-card h3 { font-size: 30px; margin-bottom: 18px; }
+    .source-card p, .risk-card p, .mvp-strip p { font-size: 28px; line-height: 1.38; color: var(--muted); }
+    .source-card ul { margin: 0; padding-left: 26px; color: var(--muted); font-size: 26px; line-height: 1.42; }
+    .source-card li + li { margin-top: 9px; }
+    .risk-card { border-left: 6px solid var(--orange); background: var(--orange-soft); }
+    .risk-card p { color: var(--ink); }
+    .mvp-strip { font-size: 26px; line-height: 1.35; }
+    .solution-layout .idea-flow { grid-template-columns: 1fr 34px 1fr; margin: 0; min-height: 0; }
+    .solution-layout .flow-card { min-height: 0; padding: 28px; }
+    .solution-layout .flow-card h3 { font-size: 34px; }
+    .solution-layout .flow-card p { font-size: 28px; line-height: 1.4; }
+    .solution-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .solution-bottom .card { padding: 26px 28px; }
+    .solution-bottom .panel-title { font-size: 28px; margin-bottom: 20px; }
+    .solution-bottom .feature, .solution-bottom .why-item { font-size: 26px; }
+    .solution-bottom .result-strip { margin-top: 20px; font-size: 26px; }
+    .solution-bottom .mvp-strip { margin-top: 20px; padding: 18px; border-radius: 12px; background: var(--blue-soft); color: var(--blue-dark); }
+    .table-slide .stake-wrap { display: block; }
+    .table-slide .stake-table { height: 100%; }
+    .table-slide th { font-size: 26px; padding: 20px 24px; }
+    .table-slide td, .table-slide td:first-child { font-size: 26px; line-height: 1.3; padding: 23px 24px; }
+    .compromise-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: .82fr 1.18fr; gap: 26px; }
+    .compromise-layout > .card { padding: 30px; }
+    .compromise-layout .side-title { font-size: 28px; margin-bottom: 22px; }
+    .compromise-layout .key-list { gap: 14px; }
+    .compromise-layout .key-list span { font-size: 26px; padding: 10px 16px; }
+    .compromise-layout .conflict { padding: 22px 0; border-top: 1px solid var(--line); }
+    .compromise-layout .conflict:first-of-type { border-top: 0; padding-top: 0; }
+    .compromise-layout .conflict b { font-size: 28px; line-height: 1.25; }
+    .compromise-layout .conflict p { font-size: 26px; line-height: 1.38; }
+    .smart-three .smart-grid { grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .smart-two .smart-grid { grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .smart-three .smart-card, .smart-two .smart-card { grid-template-columns: 270px minmax(0, 1fr) 620px; gap: 28px; padding: 22px 28px; }
+    .smart-three .goal-text, .smart-two .goal-text { font-size: 28px; line-height: 1.3; }
+    .smart-three .smart-label h3, .smart-two .smart-label h3 { font-size: 28px; }
+    .smart-three .smart-label small, .smart-two .smart-label small { font-size: 26px; line-height: 1.2; }
+    .smart-three .smart-tag, .smart-two .smart-tag, .smart-three .smart-tag b, .smart-two .smart-tag b { font-size: 26px; line-height: 1.24; }
+    .smart-three .smart-tag b, .smart-two .smart-tag b { margin-right: 7px; }
+    .smart-two .smart-card { align-items: center; }
+    .wbs-slide .wbs-item { font-size: 26px; line-height: 1.2; padding: 10px; min-height: 62px; }
+    .wbs-slide .wbs-item b { font-size: 24px; }
+    .wbs-slide .wbs-items { gap: 10px; }
+    .gantt-slide { padding-bottom: 64px; }
+    .gantt-slide .slide-head { margin-bottom: 18px; }
+    .gantt-slide .gantt-legend { margin-bottom: 10px; }
+    .gantt-slide .gantt { flex: 1 1 0; min-height: 0; grid-template-rows: 76px repeat(7, minmax(0, 1fr)); }
+    .gantt-slide .gantt-label { padding: 5px 18px; gap: 3px; }
+    .gantt-slide .gantt-dates { margin-top: 14px; }
+    .gantt-slide .gantt-note { font-size: 22px; line-height: 1.25; margin-top: 10px; }
+    @media (max-width: 680px) { .fullscreen-btn { display: none; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+    @media print {
+      @page { size: 20in 11.25in; margin: 0; }
+      html, body { width: 1920px; margin: 0; overflow: visible; background: white; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .deck { position: static; width: 1920px; height: auto; transform: none; box-shadow: none; overflow: visible; }
+      .slide, .slide:not(.active) { position: relative; display: flex; width: 1920px; height: 1080px; opacity: 1; visibility: visible; transform: none; max-height: none; break-inside: avoid; break-after: page; }
+      .slide:last-child { break-after: auto; }
+      .controls, .progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <main class="deck" id="deck">
+    <section class="slide title-slide active" aria-label="Слайд 1. Титульный лист">
+      <div class="title-layout">
+        <div>
+          <div class="title-mark"><span></span> Учебный проект</div>
+          <h1>СТУД<em>ПЛАН</em></h1>
+          <p class="title-subtitle">Планировщик учебных заданий</p>
+          <div class="title-meta">
+            <p><strong>Учебный проект студентов 2 курса</strong></p>
+            <p>Зайцева Е.А. — руководитель проекта</p>
+            <p>Толмачева Ю.С. — аналитик</p>
+            <p>Зубова А.Д. — разработчик</p>
+            <p>Ефимова У.Д. — тестировщик</p>
+            <p>Группа: 220451</p>
+            <p><strong>2026 г.</strong></p>
+          </div>
+        </div>
+        <div class="title-illustration" aria-hidden="true">
+          <svg viewBox="0 0 540 360" width="540" height="360" fill="none">
+            <rect x="90" y="48" width="355" height="250" rx="18" fill="white" stroke="#c4cfdd" stroke-width="2"/>
+            <path d="M90 104H445" stroke="#dce3ec" stroke-width="2"/>
+            <path d="M160 32V66M375 32V66" stroke="#3455ce" stroke-width="9" stroke-linecap="round"/>
+            <g stroke="#3455ce" stroke-width="3"><rect x="124" y="137" width="29" height="29" rx="6"/><rect x="124" y="191" width="29" height="29" rx="6"/><rect x="124" y="245" width="29" height="29" rx="6"/></g>
+            <path d="M131 151L137 157L148 145" stroke="#3455ce" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M177 151H394M177 205H363M177 259H379" stroke="#c4cfdd" stroke-width="10" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="footnote"><span>Некоммерческий учебный проект</span><span>01 / 11</span></div>
+    </section>
+
+    <section class="slide" aria-label="Слайд 2. Команда проекта">
+      <div class="slide-head"><div><div class="kicker">Команда и роли</div><h2>Команда проекта</h2></div><div class="slide-no">02 / 11</div></div>
+      <div class="team-grid">
+        <article class="card team-card"><div class="role-icon">↗</div><h3>РУКОВОДИТЕЛЬ ПРОЕКТА</h3><p class="person">ФИО: Зайцева Е.А.</p><ul><li>планирование проекта;</li><li>распределение задач;</li><li>контроль сроков;</li><li>координация команды;</li><li>контроль достижения целей.</li></ul></article>
+        <article class="card team-card"><div class="role-icon">⌕</div><h3>АНАЛИТИК</h3><p class="person">ФИО: Толмачева Ю.С.</p><ul><li>определение потребностей пользователей;</li><li>формирование требований;</li><li>определение функций приложения;</li><li>проектирование структуры приложения.</li></ul></article>
+        <article class="card team-card"><div class="role-icon">&lt;/&gt;</div><h3>РАЗРАБОТЧИК</h3><p class="person">ФИО: Зубова А.Д.</p><ul><li>создание интерфейса;</li><li>реализация функций приложения;</li><li>хранение данных;</li><li>исправление технических ошибок.</li></ul></article>
+        <article class="card team-card"><div class="role-icon">✓</div><h3>ТЕСТИРОВЩИК</h3><p class="person">ФИО: Ефимова У.Д.</p><ul><li>проверка основных функций;</li><li>поиск ошибок;</li><li>функциональное тестирование;</li><li>контроль качества итоговой версии.</li></ul></article>
+      </div>
+      <div class="footnote"><span>4 участника · общая цель · распределённые роли</span><span>СтудПлан</span></div>
+    </section>
+
+    <section class="slide problem-slide" aria-label="Слайд 3. Проблема и обоснование">
+      <div class="slide-head"><div><div class="kicker">Контекст проекта</div><h2>Проблема и обоснование</h2></div><div class="slide-no">03 / 11</div></div>
+      <div class="problem-layout">
+        <div class="problem-main">
+          <article class="card flow-card problem"><div class="flow-label">Проблема</div><h3>Задания разбросаны</h3><p>Студенты получают задания по разным дисциплинам и хранят информацию в чатах, заметках, электронном дневнике, фотографиях и других местах.</p></article>
+          <article class="card source-card"><h3>Источники информации</h3><ul><li>чаты и сообщения преподавателей;</li><li>заметки и электронный дневник;</li><li>фотографии заданий и другие места хранения.</li></ul></article>
+        </div>
+        <div class="problem-side">
+          <article class="card risk-card"><h3>Риск без единого плана</h3><p>При таком распределении информации легко потерять задание или пропустить ближайший дедлайн.</p></article>
+          <article class="card mvp-strip"><div class="panel-title">Почему проблему важно решить</div><p>Один понятный список связывает учебные задания, сроки и статус выполнения в одном месте.</p></article>
+        </div>
+      </div>
+      <div class="footnote"><span>Проблема подтверждается повседневным способом хранения заданий</span><span>СтудПлан</span></div>
+    </section>
+
+    <section class="slide" aria-label="Слайд 4. Идея проекта и MVP">
+      <div class="slide-head"><div><div class="kicker">Решение и результат</div><h2>Идея проекта и MVP</h2></div><div class="slide-no">04 / 11</div></div>
+      <div class="solution-layout">
+        <div class="idea-flow">
+          <article class="flow-card solution"><div class="flow-label">Идея</div><h3>Один понятный план</h3><p>Простой веб-планировщик объединяет учебные задания и сроки выполнения в одном месте.</p></article>
+          <div class="flow-arrow">→</div>
+          <article class="flow-card result"><div class="flow-label">MVP</div><h3>Работающий MVP</h3><p>Студент видит дедлайны, управляет заданиями и отмечает выполненные работы.</p></article>
+        </div>
+        <div class="solution-bottom">
+          <article class="card feature-panel"><div class="panel-title">Основные возможности MVP</div><div class="feature-list"><div class="feature"><i>＋</i>добавить задание</div><div class="feature"><i>✎</i>изменить задание</div><div class="feature"><i>×</i>удалить задание</div><div class="feature"><i>✓</i>отметить выполнение</div><div class="feature"><i>≡</i>отфильтровать задания</div><div class="feature"><i>↕</i>сортировать по дедлайну</div></div><div class="result-strip">Дополнительно: список ближайших дедлайнов</div></article>
+          <article class="card why-panel"><div class="panel-title">Почему проект актуален</div><div class="why-list"><div class="why-item">решает понятную повседневную проблему студентов</div><div class="why-item">не требует финансовых затрат</div><div class="why-item">может быть реализован небольшой командой</div><div class="why-item">MVP создаётся в ограниченные сроки</div><div class="why-item">даёт практический результат</div></div><div class="mvp-strip">Некоммерческий проект · бюджет 0 ₽ · бесплатные инструменты</div></article>
+        </div>
+      </div>
+      <div class="footnote"><span>Шесть функций MVP · ближайшие дедлайны · работающий результат</span><span>СтудПлан</span></div>
+    </section>
+
+    <section class="slide table-slide" aria-label="Слайд 5. Таблица заинтересованных сторон">
+      <div class="slide-head"><div><div class="kicker">Интересы и ограничения</div><h2>Таблица заинтересованных сторон</h2></div><div class="slide-no">05 / 11</div></div>
+      <div class="stake-wrap">
+        <div class="card stake-table">
+          <table>
+            <colgroup><col style="width:17%"><col style="width:21%"><col style="width:24%"><col style="width:26%"><col style="width:12%"></colgroup>
+            <thead><tr><th>Заинтересованная сторона</th><th>Бюджет</th><th>Время</th><th>Качество</th><th>Приоритет</th></tr></thead>
+            <tbody>
+              <tr><td>Студенты</td><td>бесплатное использование</td><td>быстрый доступ к заданиям</td><td>удобный интерфейс и корректные сроки</td><td class="priority-high">высокий</td></tr>
+              <tr><td>Руководитель проекта</td><td>0 рублей</td><td>завершение проекта к 14 декабря</td><td>соответствие требованиям проекта</td><td class="priority-high">высокий</td></tr>
+              <tr><td>Разработчик</td><td>бесплатные инструменты</td><td>достаточный срок для реализации MVP</td><td>стабильная работа функций</td><td class="priority-high">высокий</td></tr>
+              <tr><td>Аналитик</td><td>без дополнительных затрат</td><td>требования до основной разработки</td><td>понятные и полные требования</td><td class="priority-medium">средний</td></tr>
+              <tr><td>Тестировщик</td><td>без дополнительных затрат</td><td>время на полноценную проверку</td><td>нет известных критических ошибок</td><td class="priority-medium">средний</td></tr>
+              <tr><td>Преподаватель</td><td>без дополнительных затрат</td><td>готовность к аттестации</td><td>соответствие учебному заданию</td><td class="priority-medium">средний</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footnote"><span>Шесть заинтересованных сторон · баланс бюджета, времени и качества</span><span>СтудПлан</span></div>
+    </section>
+
+    <section class="slide" aria-label="Слайд 6. Компромиссы проекта">
+      <div class="slide-head"><div><div class="kicker">Интересы и ограничения</div><h2>Компромиссы проекта</h2></div><div class="slide-no">06 / 11</div></div>
+      <div class="compromise-layout">
+        <article class="card"><div class="side-title">Ключевые стороны</div><div class="key-list"><span>студенты</span><span>руководитель</span><span>разработчик</span></div><div class="mvp-strip">Приоритет: рабочий MVP к ближайшим дедлайнам без дополнительных затрат.</div></article>
+        <article class="card"><div class="side-title">Основные противоречия и компромиссы</div>
+          <div class="conflict"><b>1. Больше возможностей ↔ ограниченные сроки</b><p><strong>Компромисс:</strong> ограничить первую версию функциями MVP.</p></div>
+          <div class="conflict"><b>2. Разработка ↔ время на проверку</b><p><strong>Компромисс:</strong> часть тестирования начинается до полного окончания разработки.</p></div>
+          <div class="conflict"><b>3. Качество ↔ бюджет 0 рублей</b><p><strong>Компромисс:</strong> бесплатные инструменты и простой технологический стек.</p></div>
+        </article>
+      </div>
+      <div class="footnote"><span>Компромиссы задают границы первой версии проекта</span><span>СтудПлан</span></div>
+    </section>
+
+    <section class="slide smart-three" aria-label="Слайд 7. SMART-цели 1–3">
+      <div class="slide-head"><div><div class="kicker">Измеримые результаты</div><h2>SMART-цели 1–3</h2></div><div class="slide-no">07 / 11</div></div>
+      <div class="smart-grid">
+        <article class="smart-card"><div class="smart-label"><span class="smart-number">1</span><div><h3>Требования</h3><small>до 20.11.2026<br>≥5 функций</small></div></div><p class="goal-text">До 20 ноября 2026 года определить требования к планировщику учебных заданий и сформировать согласованный командой перечень не менее 5 основных функций MVP.</p><div class="smart-tags"><div class="smart-tag"><b>S</b>набор функций планировщика</div><div class="smart-tag"><b>M</b>перечень ≥5 функций</div><div class="smart-tag"><b>A</b>анализ силами аналитика и команды</div><div class="smart-tag"><b>R</b>основа проектирования и разработки</div><div class="smart-tag"><b>T</b>до 20.11.2026</div></div></article>
+        <article class="smart-card"><div class="smart-label"><span class="smart-number">2</span><div><h3>Прототип</h3><small>до 27.11.2026<br>основные элементы интерфейса</small></div></div><p class="goal-text">До 27 ноября 2026 года подготовить прототип интерфейса «СтудПлана», включающий главный экран со списком заданий, форму добавления и редактирования задания, фильтры и отображение дедлайнов.</p><div class="smart-tags"><div class="smart-tag"><b>S</b>прототип основных экранов</div><div class="smart-tag"><b>M</b>список, форма, фильтры, дедлайны</div><div class="smart-tag"><b>A</b>бесплатные средства; срок выполним</div><div class="smart-tag"><b>R</b>основа разработки MVP</div><div class="smart-tag"><b>T</b>до 27.11.2026</div></div></article>
+        <article class="smart-card"><div class="smart-label"><span class="smart-number">3</span><div><h3>Разработка MVP</h3><small>до 06.12.2026<br>≥5 работающих функций<br>планируется 6</small></div></div><p class="goal-text">До 6 декабря 2026 года разработать работающий MVP веб-приложения «СтудПлан», реализующий не менее 5 основных функций работы с учебными заданиями.</p><div class="smart-tags"><div class="smart-tag"><b>S</b>работающая первая версия</div><div class="smart-tag"><b>M</b>≥5 функций; план — 6</div><div class="smart-tag"><b>A</b>базовый объём для малой команды</div><div class="smart-tag"><b>R</b>MVP — главный результат проекта</div><div class="smart-tag"><b>T</b>до 06.12.2026</div></div></article>
+      </div>
+      <div class="footnote"><span>S — конкретность · M — измеримость · A — достижимость · R — значимость · T — срок</span><span>СтудПлан</span></div>
+    </section>
+
+    <section class="slide smart-two" aria-label="Слайд 8. SMART-цели 4–5">
+      <div class="slide-head"><div><div class="kicker">Измеримые результаты</div><h2>SMART-цели 4–5</h2></div><div class="slide-no">08 / 11</div></div>
+      <div class="smart-grid">
+        <article class="smart-card"><div class="smart-label"><span class="smart-number">4</span><div><h3>Тестирование</h3><small>до 11.12.2026<br>≥10 тестов<br>0 критических ошибок</small></div></div><p class="goal-text">До 11 декабря 2026 года проверить все основные функции MVP, провести не менее 10 функциональных тестов и устранить все обнаруженные критические ошибки.</p><div class="smart-tags"><div class="smart-tag"><b>S</b>проверка функций и исправления</div><div class="smart-tag"><b>M</b>≥10 тестов; 0 известных критических ошибок</div><div class="smart-tag"><b>A</b>небольшой MVP проверяет команда</div><div class="smart-tag"><b>R</b>работоспособная демонстрация</div><div class="smart-tag"><b>T</b>до 11.12.2026</div></div></article>
+        <article class="smart-card"><div class="smart-label"><span class="smart-number">5</span><div><h3>Готовый проект</h3><small>14.12.2026<br>3 результата<br>бюджет 0 ₽</small></div></div><p class="goal-text">К 14 декабря 2026 года подготовить готовый к демонстрации проект «СтудПлан», включающий работающий MVP, результаты тестирования и презентацию проекта, при бюджете 0 рублей и использовании только бесплатных инструментов.</p><div class="smart-tags"><div class="smart-tag"><b>S</b>полный комплект результатов</div><div class="smart-tag"><b>M</b>MVP + тесты + презентация; 0 ₽</div><div class="smart-tag"><b>A</b>простой MVP; бесплатные средства</div><div class="smart-tag"><b>R</b>готовность к аттестации</div><div class="smart-tag"><b>T</b>14.12.2026</div></div></article>
+      </div>
+      <div class="footnote"><span>S — конкретность · M — измеримость · A — достижимость · R — значимость · T — срок</span><span>СтудПлан</span></div>
+    </section>
+
+    <section class="slide wbs-slide" aria-label="Слайд 9. Задачи и иерархическая структура работ">
+      <div class="slide-head"><div><div class="kicker">Объём проекта</div><h2>Задачи проекта и ИСР</h2></div><div class="slide-no">09 / 11</div></div>
+      <div class="wbs-root">СТУДПЛАН</div>
+      <div class="wbs-branches">
+        <div class="wbs-branch"><div class="wbs-heading">1. АНАЛИЗ</div><div class="wbs-items"><div class="wbs-item"><b>1.1</b> Определение проблемы</div><div class="wbs-item"><b>1.2</b> Анализ потребностей пользователей</div><div class="wbs-item"><b>1.3</b> Формирование требований</div><div class="wbs-item"><b>1.4</b> Определение функций MVP</div></div></div>
+        <div class="wbs-branch"><div class="wbs-heading">2. ПРОЕКТИРОВАНИЕ</div><div class="wbs-items"><div class="wbs-item"><b>2.1</b> Проектирование интерфейса</div><div class="wbs-item"><b>2.2</b> Определение структуры данных</div><div class="wbs-item"><b>2.3</b> Подготовка прототипа интерфейса</div></div></div>
+        <div class="wbs-branch"><div class="wbs-heading">3. РАЗРАБОТКА</div><div class="wbs-items"><div class="wbs-item"><b>3.1</b> Добавление задания</div><div class="wbs-item"><b>3.2</b> Редактирование</div><div class="wbs-item"><b>3.3</b> Удаление</div><div class="wbs-item"><b>3.4</b> Отметка выполнения</div><div class="wbs-item"><b>3.5</b> Фильтрация</div><div class="wbs-item"><b>3.6</b> Сортировка</div><div class="wbs-item"><b>3.7</b> Сохранение данных</div></div></div>
+        <div class="wbs-branch"><div class="wbs-heading">4. ТЕСТИРОВАНИЕ</div><div class="wbs-items"><div class="wbs-item"><b>4.1</b> Подготовка тестов</div><div class="wbs-item"><b>4.2</b> Проверка основных функций</div><div class="wbs-item"><b>4.3</b> Фиксация ошибок</div><div class="wbs-item"><b>4.4</b> Исправление критических ошибок</div><div class="wbs-item"><b>4.5</b> Повторная проверка</div></div></div>
+        <div class="wbs-branch"><div class="wbs-heading">5. ЗАВЕРШЕНИЕ</div><div class="wbs-items"><div class="wbs-item"><b>5.1</b> Финальная проверка MVP</div><div class="wbs-item"><b>5.2</b> Подготовка результатов тестирования</div><div class="wbs-item"><b>5.3</b> Подготовка презентации</div><div class="wbs-item"><b>5.4</b> Подготовка проекта к демонстрации</div></div></div>
+      </div>
+      <div class="footnote"><span>ИСР показывает состав работ и сохраняет иерархию проекта</span><span>СтудПлан</span></div>
+    </section>
+
+    <section class="slide gantt-slide" aria-label="Слайд 10. Диаграмма Ганта">
+      <div class="slide-head"><div><div class="kicker">Календарный план</div><h2>Диаграмма Ганта</h2></div><div class="slide-no">10 / 11</div></div>
+      <div class="gantt-wrap">
+        <div class="gantt-legend"><span class="legend-item"><i></i> работа</span><span class="legend-item"><i class="milestone"></i> контрольная точка</span></div>
+        <div class="gantt">
+          <div class="gantt-head">Этап / работа</div><div class="gantt-head">9–15<br>ноября</div><div class="gantt-head">16–22<br>ноября</div><div class="gantt-head">23–29<br>ноября</div><div class="gantt-head">30 нояб. – 6 дек.</div><div class="gantt-head">7–13<br>декабря</div><div class="gantt-head">14<br>декабря</div>
+          <div class="gantt-label">Анализ требований<small>9–20 ноября</small></div><div class="gantt-cell"><span class="bar" style="left:0%; width:100%"></span></div><div class="gantt-cell"><span class="bar" style="left:0%; width:71.428571%"></span><span class="milestone" style="left:71.428571%"></span></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-label">Проектирование интерфейса и структуры<small>16–27 ноября</small></div><div class="gantt-cell"></div><div class="gantt-cell"><span class="bar violet" style="left:0%; width:100%"></span></div><div class="gantt-cell"><span class="bar violet" style="left:0%; width:71.428571%"></span><span class="milestone" style="left:71.428571%"></span></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-label">Разработка MVP<small>23 ноября – 6 декабря</small></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"><span class="bar green" style="left:0%; width:100%"></span></div><div class="gantt-cell"><span class="bar green" style="left:0%; width:100%"></span><span class="milestone" style="left:100%"></span></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-label">Тестирование<small>4–11 декабря</small></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"><span class="bar orange" style="left:57.142857%; width:42.857143%"></span></div><div class="gantt-cell"><span class="bar orange" style="left:0%; width:71.428571%"></span><span class="milestone" style="left:71.428571%"></span></div><div class="gantt-cell"></div>
+          <div class="gantt-label">Исправление ошибок<small>8–11 декабря</small></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"><span class="bar red" style="left:14.285714%; width:57.142857%"></span></div><div class="gantt-cell"></div>
+          <div class="gantt-label">Подготовка презентации<small>9–13 декабря</small></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"><span class="bar light" style="left:28.571429%; width:71.428571%"></span></div><div class="gantt-cell"></div>
+          <div class="gantt-label">Готовность / аттестация<small>14 декабря</small></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"><span class="milestone" style="left:50%; background:var(--blue)"></span></div>
+        </div>
+        <div class="gantt-dates"><span></span><span><strong>20.11</strong>требования сформированы</span><span><strong>27.11</strong>прототип интерфейса</span><span><strong>06.12</strong>MVP готов</span><span><strong>11.12</strong>тестирование завершено</span><span><strong>13.12</strong>презентация готова</span><span><strong>14.12</strong>проект готов к сдаче</span></div>
+        <p class="gantt-note">Этапы частично параллельны: проектирование начинается во время анализа, тестирование — до полного завершения разработки, презентация — после результатов тестирования.</p>
+      </div>
+      <div class="footnote"><span>Общий период: 9 ноября — 14 декабря 2026 года</span><span>СтудПлан</span></div>
+    </section>
+
+    <section class="slide network-slide" aria-label="Слайд 11. Сетевой график">
+      <div class="slide-head"><div><div class="kicker">Зависимости работ</div><h2>Сетевой график проекта</h2></div><div class="slide-no">11 / 11</div></div>
+      <div class="network-wrap">
+        <div class="network-board">
+          <svg viewBox="0 0 1760 610" role="img" aria-labelledby="network-title network-description">
+            <title id="network-title">Сетевой график: анализ, параллельное проектирование, разработка, проверка и завершение</title>
+            <desc id="network-description">A — анализ требований, 3 дня. После A параллельно B — проектирование интерфейса, 2 дня, и C — проектирование структуры данных, 2 дня. После обеих работ D — разработка MVP, 7 дней, затем E — функциональное тестирование, 3 дня, F — исправление ошибок и финальная подготовка, 2 дня. После F проект готов.</desc>
+            <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#3455ce" stroke-width="1.7"/></marker></defs>
+            <g fill="none" stroke="#3455ce" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow)">
+              <path data-edge="A-B" d="M255 320 H280 V175 H310"/>
+              <path data-edge="A-C" d="M255 320 H280 V460 H310"/>
+              <path data-edge="B-D" d="M560 175 H610 V320 H650"/>
+              <path data-edge="C-D" d="M560 460 H610 V320 H650"/>
+              <path data-edge="D-E" d="M870 320 H960"/>
+              <path data-edge="E-F" d="M1195 320 H1290"/>
+              <path data-edge="F-ready" d="M1560 320 H1620"/>
+            </g>
+            <g font-size="20" fill="#45536b"><text x="310" y="54" letter-spacing="2">ПАРАЛЛЕЛЬНО</text><text x="1340" y="54">стрелка — зависимость</text></g>
+            <g fill="#fff" stroke="#b8c6e8" stroke-width="2">
+              <rect data-node="A" x="35" y="240" width="220" height="160" rx="16"/>
+              <rect data-node="B" x="310" y="90" width="250" height="170" rx="16" fill="#edf2ff"/>
+              <rect data-node="C" x="310" y="375" width="250" height="170" rx="16" fill="#edf2ff"/>
+              <rect data-node="D" x="650" y="240" width="220" height="160" rx="16"/>
+              <rect data-node="E" x="960" y="240" width="235" height="160" rx="16"/>
+              <rect data-node="F" x="1290" y="220" width="270" height="200" rx="16"/>
+            </g>
+            <g fill="#1d2940" font-size="24" font-weight="700">
+              <text x="58" y="285"><tspan x="58">A. Анализ</tspan><tspan x="58" dy="30">требований</tspan></text>
+              <text x="332" y="124"><tspan x="332">B.</tspan><tspan x="332" dy="30">Проектирование</tspan><tspan x="332" dy="30">интерфейса</tspan></text>
+              <text x="332" y="409"><tspan x="332">C.</tspan><tspan x="332" dy="30">Проектирование</tspan><tspan x="332" dy="30">структуры данных</tspan></text>
+              <text x="673" y="285"><tspan x="673">D. Разработка</tspan><tspan x="673" dy="30">MVP</tspan></text>
+              <text x="982" y="278"><tspan x="982">E.</tspan><tspan x="982" dy="30">Функциональное</tspan><tspan x="982" dy="30">тестирование</tspan></text>
+              <text x="1313" y="265"><tspan x="1313">F. Исправление</tspan><tspan x="1313" dy="30">ошибок и финальная</tspan><tspan x="1313" dy="30">подготовка</tspan></text>
+            </g>
+            <g fill="#3455ce" font-size="25" font-weight="700"><text x="58" y="370">3 дня</text><text x="332" y="230">2 дня</text><text x="332" y="515">2 дня</text><text x="673" y="370">7 дней</text><text x="982" y="370">3 дня</text><text x="1313" y="390">2 дня</text></g>
+            <circle cx="610" cy="320" r="17" fill="#fff" stroke="#3455ce" stroke-width="2"/><text x="610" y="327" text-anchor="middle" font-size="19" font-weight="700" fill="#3455ce">И</text>
+            <rect data-node="ready" x="1620" y="240" width="110" height="160" rx="16" fill="#3455ce"/>
+            <text x="1675" y="307" text-anchor="middle" fill="#fff" font-size="25" font-weight="700"><tspan x="1675">Проект</tspan><tspan x="1675" dy="33">готов</tspan></text>
+          </svg>
+        </div>
+        <div class="critical"><b>Критическая последовательность</b><span>A → B/C → D → E → F. Работы B и C выполняются параллельно, имеют одинаковую длительность и обе должны завершиться до начала разработки D.</span></div>
+      </div>
+      <div class="footnote"><span>Схема зависимостей работ · не календарная диаграмма</span><span>СтудПлан</span></div>
+    </section>
+  </main>
+  <nav class="controls" aria-label="Навигация по презентации">
+    <button class="nav-btn" id="prev" aria-label="Предыдущий слайд">‹</button>
+    <span class="counter"><span id="current">1</span> / <span id="total">11</span></span>
+    <button class="nav-btn" id="next" aria-label="Следующий слайд">›</button>
+    <button class="fullscreen-btn" id="fullscreen">Полный экран</button>
+  </nav>
+  <script>
+    (() => {
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const current = document.getElementById('current');
+      document.getElementById('total').textContent = String(slides.length);
+      const progress = document.getElementById('progress');
+      const previous = document.getElementById('prev');
+      const next = document.getElementById('next');
+      const fullscreen = document.getElementById('fullscreen');
+      let index = 0;
+      const fit = () => document.documentElement.style.setProperty('--scale', String(Math.min(innerWidth / 1920, innerHeight / 1080)));
+      const show = (value) => {
+        index = Math.max(0, Math.min(slides.length - 1, value));
+        slides.forEach((slide, i) => {
+          slide.classList.toggle('active', i === index);
+          slide.setAttribute('aria-hidden', String(i !== index));
+        });
+        current.textContent = String(index + 1);
+        progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+        previous.disabled = index === 0;
+        next.disabled = index === slides.length - 1;
+        history.replaceState(null, '', `#${index + 1}`);
+      };
+      const readHash = () => {
+        const value = Number(location.hash.slice(1));
+        show(Number.isInteger(value) && value > 0 ? value - 1 : 0);
+      };
+      const toggleFullscreen = async () => {
+        try {
+          if (document.fullscreenElement) await document.exitFullscreen();
+          else if (document.fullscreenEnabled) await document.documentElement.requestFullscreen();
+          else fullscreen.textContent = 'Полный экран: F11';
+        } catch {
+          fullscreen.textContent = 'Полный экран: F11';
+        }
+      };
+      previous.addEventListener('click', () => show(index - 1));
+      next.addEventListener('click', () => show(index + 1));
+      fullscreen.addEventListener('click', toggleFullscreen);
+      document.addEventListener('fullscreenchange', () => {
+        fullscreen.textContent = document.fullscreenElement ? 'Выйти из полного экрана' : 'Полный экран';
+        fit();
+      });
+      let numericShortcut = '';
+      let numericShortcutAt = 0;
+      document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+        if (event.key === ' ' && event.target instanceof HTMLButtonElement) return;
+        if (['ArrowRight', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); show(index + 1); }
+        if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); show(index - 1); }
+        if (event.key === 'Home') { event.preventDefault(); show(0); }
+        if (event.key === 'End') { event.preventDefault(); show(slides.length - 1); }
+        if (/^[0-9]$/.test(event.key)) {
+          const now = Date.now();
+          const candidate = now - numericShortcutAt < 700 ? numericShortcut + event.key : event.key;
+          numericShortcut = Number(candidate) <= slides.length ? candidate : event.key;
+          numericShortcutAt = now;
+          const slideNumber = Number(numericShortcut);
+          if (slideNumber > 0 && slideNumber <= slides.length) show(slideNumber - 1);
+        } else {
+          numericShortcut = '';
+        }
+        if (event.code === 'KeyF') toggleFullscreen();
+      });
+      window.addEventListener('resize', fit);
+      window.addEventListener('hashchange', readHash);
+      fit();
+      readHash();
+    })();
+  </script>
+</body>
+</html>
